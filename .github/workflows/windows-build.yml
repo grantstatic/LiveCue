@@ -1,0 +1,31 @@
+name: LiveCue Windows Build
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore LiveCue.csproj
+      - name: Compile
+        run: dotnet build LiveCue.csproj -c Release --no-restore
+      - name: Publish self-contained Windows x64 EXE
+        run: dotnet publish LiveCue.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o publish
+      - name: Check EXE exists
+        shell: pwsh
+        run: |
+          if (!(Test-Path publish/LiveCue.exe)) { throw 'LiveCue.exe not found' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LiveCue-v0.6-win-x64
+          path: publish/**
+          if-no-files-found: error
