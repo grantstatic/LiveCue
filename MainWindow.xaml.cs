@@ -65,14 +65,9 @@ public partial class MainWindow : Window {
   e.Handled=true;UpdateStatus();
  }
  void Startup(){
-  var dialog=new Window{Title="Welcome to LiveCue",Owner=this,Width=480,SizeToContent=SizeToContent.Height,WindowStartupLocation=WindowStartupLocation.CenterOwner,ResizeMode=ResizeMode.NoResize,Background=new SolidColorBrush(Color.FromRgb(27,27,31)),Foreground=Brushes.White};
-  var panel=new StackPanel{Margin=new Thickness(24)};dialog.Content=panel;
-  panel.Children.Add(new TextBlock{Text="Welcome to LiveCue",FontSize=26,Foreground=Brushes.White,Margin=new Thickness(0,0,0,18)});
-  int choice=0;
-  void Add(string title,int value){var b=new Button{Content=title,Padding=new Thickness(12),Margin=new Thickness(0,4,0,4)};b.Click+=(_,_)=>{choice=value;dialog.DialogResult=true;};panel.Children.Add(b);}
-  Add("Load a LiveCue project",1);Add("Import a script (TXT / RTF)",2);Add("Use the practice script",3);if(File.Exists(recovery))Add("Recover unsaved script",4);
-  Add("Start with a blank script",5);
+  var dialog=new StartupWindow(File.Exists(recovery)){Owner=this};
   dialog.ShowDialog();
+  int choice=dialog.Choice;
   if(choice==1){if(!LoadProject())Practice();}else if(choice==2){Open_Click(this,new RoutedEventArgs());if(new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Text.Trim().Length==0)Practice();}else if(choice==4){try{using var stream=File.OpenRead(recovery);new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Load(stream,DataFormats.Rtf);dirty=true;}catch(Exception ex){MessageBox.Show(ex.Message);Practice();}}else if(choice!=5)Practice();
   RefreshEmbedded();
  }

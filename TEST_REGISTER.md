@@ -68,3 +68,11 @@ User confirmed v0.6 launches and redesigned layout looks better; continuous scro
 | DOC-007 | Startup chooser | All choices work, cancellation safe | Pending |
 | DOC-008 | Save/reopen .livecue | RTF and transport settings round-trip | Pending |
 | DOC-009 | Practice script | Long original sample, coloured cues, offline | Pending |
+
+## Startup visual redesign
+| ID | Test | Expected result | Status |
+|---|---|---|---|
+| UI-009 | Startup visual comparison | Dark background, orange line icons, four matching cards, no mockup caption | Pending |
+| UI-010 | Startup keyboard navigation | Tab focus visible; Enter activates correct option | Pending |
+| UI-011 | Startup on small screens and high DPI | All options reachable by scrolling | Pending |
+| UI-012 | Recovery card | Only visible when recovery exists | Pending |
