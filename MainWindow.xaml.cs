@@ -23,7 +23,7 @@ public partial class MainWindow : Window {
   Editor.TextChanged+=(_,_)=>{if(loading)return;dirty=true;if(output!=null&&LiveSyncBox.IsChecked==true){editTimer.Stop();editTimer.Start();}};
   editTimer.Tick+=(_,_)=>{editTimer.Stop();SyncLive();};
   saveTimer.Tick+=(_,_)=>SaveRecovery();saveTimer.Start();
-  previewTimer.Tick+=(_,_)=>{if(output!=null&&preview!=null)preview.SetFraction(output.Range>0?output.Offset/output.Range:0);};previewTimer.Start();
+  previewTimer.Tick+=(_,_)=>{if(output!=null){double f=output.Range>0?output.Offset/output.Range:0;preview?.SetFraction(f);EmbeddedViewer.ScrollToVerticalOffset(f*EmbeddedViewer.ScrollableHeight);}};previewTimer.Start();
   PreviewKeyDown+=Keys;
   Loaded+=(_,_)=>{if(File.Exists(recovery)&&MessageBox.Show(this,"Recover autosaved script?","LiveCue",MessageBoxButton.YesNo)==MessageBoxResult.Yes){try{loading=true;using var f=File.OpenRead(recovery);new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Load(f,DataFormats.Rtf);dirty=true;}catch(Exception ex){MessageBox.Show(ex.Message);}finally{loading=false;}}};
   Closing+=(_,e)=>{if(output!=null&&output.IsVisible&&MessageBox.Show(this,"Close the live presenter output?","LiveCue",MessageBoxButton.YesNo)!=MessageBoxResult.Yes){e.Cancel=true;return;}SaveRecovery();};
@@ -37,11 +37,13 @@ public partial class MainWindow : Window {
  void Amber_Click(object s,RoutedEventArgs e)=>SetColor(Brushes.Orange);
  void Cyan_Click(object s,RoutedEventArgs e)=>SetColor(Brushes.Cyan);
  void SetColor(Brush color)=>Editor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty,color);
- void Live_Click(object s,RoutedEventArgs e){if(output!=null){output.Activate();return;}output=new OutputWindow(Editor.Document);output.Closed+=(_,_)=>{output=null;preview?.Close();preview=null;UpdateStatus();};output.Show();output.SetMode(ModeSelect.SelectedIndex==1);output.SetSpeed(SpeedSlider.Value);UpdateStatus();}
- void SyncLive(){if(output==null)return;try{output.UpdateDocument(Editor.Document);preview?.UpdateDocument(Editor.Document);}catch(Exception ex){Status.Text="Live sync error: "+ex.Message;}}
+ void Live_Click(object s,RoutedEventArgs e){if(output!=null){output.Activate();return;}output=new OutputWindow(Editor.Document);output.Closed+=(_,_)=>{output=null;preview?.Close();preview=null;UpdateStatus();};output.Show();RefreshEmbedded();output.SetMode(ModeSelect.SelectedIndex==1);output.SetSpeed(SpeedSlider.Value);UpdateStatus();}
+ void SyncLive(){if(output==null)return;try{output.UpdateDocument(Editor.Document);preview?.UpdateDocument(Editor.Document);RefreshEmbedded();}catch(Exception ex){Status.Text="Live sync error: "+ex.Message;}}
  void SyncNow_Click(object s,RoutedEventArgs e)=>SyncLive();
  void ModeChanged(object s,SelectionChangedEventArgs e){output?.SetMode(ModeSelect.SelectedIndex==1);UpdateStatus();}
  void SpeedChanged(object s,RoutedPropertyChangedEventArgs<double> e)=>output?.SetSpeed(e.NewValue);
+ void RefreshEmbedded(){using var ms=new MemoryStream();new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Save(ms,DataFormats.Xaml);ms.Position=0;new TextRange(EmbeddedScript.Document.ContentStart,EmbeddedScript.Document.ContentEnd).Load(ms,DataFormats.Xaml);}
+ void Pause_Click(object s,RoutedEventArgs e){output?.Pause();UpdateStatus();}
  void Play_Click(object s,RoutedEventArgs e){output?.TogglePlay();UpdateStatus();}
  void Reverse_Click(object s,RoutedEventArgs e)=>output?.Reverse();
  void JogBack_Click(object s,RoutedEventArgs e)=>output?.Jog(-1);
