@@ -54,3 +54,17 @@ Note: GitHub initial build baseline is a reduced testable subset of the prior v0
 | UI-008 | Launch new workspace | No XAML initialization exceptions | Pending |
 
 Build #13 failed; detailed log unavailable (BlobNotFound). Exact root cause unconfirmed.
+
+## v0.7 transport and startup
+User confirmed v0.6 launches and redesigned layout looks better; continuous scrolling failed in user test. Fix below is not runtime verified.
+
+| ID | Test | Expected result | Status |
+|---|---|---|---|
+| SCR-007 | Low speed over 30 seconds | Fractional movement accumulates without stalling | Pending |
+| SCR-008 | Space from preview or presenter | Toggles once per press, no repeat toggles | Pending |
+| SCR-009 | Space and arrows in editor | Normal typing and caret navigation | Pending |
+| SCR-010 | Arrow jog and speed changes | Up/down jog, left/right adjust speed | Pending |
+| OUT-007 | Escape from fullscreen | Pauses and returns to floating output | Pending |
+| DOC-007 | Startup chooser | All choices work, cancellation safe | Pending |
+| DOC-008 | Save/reopen .livecue | RTF and transport settings round-trip | Pending |
+| DOC-009 | Practice script | Long original sample, coloured cues, offline | Pending |
