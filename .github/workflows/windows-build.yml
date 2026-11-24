@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+concurrency:
+  group: livecue-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -17,7 +20,17 @@ jobs:
       - name: Restore
         run: dotnet restore LiveCue.csproj
       - name: Compile
-        run: dotnet build LiveCue.csproj -c Release --no-restore
+        shell: pwsh
+        run: |
+          dotnet build LiveCue.csproj -c Release --no-restore 2>&1 | Tee-Object -FilePath build-log.txt
+          exit $LASTEXITCODE
+      - name: Upload compile diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiveCue-build-log
+          path: build-log.txt
+          if-no-files-found: ignore
       - name: Publish self-contained Windows x64 EXE
         run: dotnet publish LiveCue.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o publish
       - name: Check EXE exists
