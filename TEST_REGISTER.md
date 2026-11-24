@@ -39,3 +39,18 @@ All tests below are **NOT VERIFIED** until evidence is recorded. Do not use on a
 | SAFE-005 | Rapid pause/reverse/jog/edit | No unexpected jumps | Pending |
 
 Note: GitHub initial build baseline is a reduced testable subset of the prior v0.6 archive. Full v0.6 controller mapping, mirror and richer editing functions have not yet been migrated. Never mark these implemented until restored and validated.
+
+## Three-panel redesign
+
+| ID | Test | Expected result | Status |
+|---|---|---|---|
+| UI-001 | 1280x720, 1920x1080 and 4K | Controls remain accessible | Pending |
+| UI-002 | DPI 100–200% | No clipping | Pending |
+| UI-003 | Drag both splitters | Panels resize without overlap | Pending |
+| UI-004 | Dark theme and focus states | Text and controls readable | Pending |
+| UI-005 | Embedded preview | Tracks presenter position | Pending |
+| UI-006 | Playback and keyboard focus | Controls respond reliably | Pending |
+| UI-007 | Manual and automatic updates | No unintended live edits | Pending |
+| UI-008 | Launch new workspace | No XAML initialization exceptions | Pending |
+
+Build #13 failed; detailed log unavailable (BlobNotFound). Exact root cause unconfirmed.
