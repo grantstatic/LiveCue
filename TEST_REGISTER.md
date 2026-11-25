@@ -101,3 +101,20 @@ Build #18: Windows compile, publish and EXE check passed for v0.8. Runtime check
 | OUT-017 | Toggle case mid-script with unpublished changes | Playback pauses on Apply, unpublished content remains unpublished, original case restored when toggled back | Pending |
 | DOC-011 | Save/reopen project with ALL CAPS; open older project | Case preference restored; older projects default to original case; saved RTF remains unmodified | Pending |
 | UI-014 | Settings sample, Reset and Cancel | Sample reflects case selection; reset defaults to original; Cancel leaves output unchanged | Pending |
+
+## v0.9 shared presenter and live controls
+User reported jumpy scrolling at large font sizes and independent preview mismatch in v0.8.1. Build #19 compiled/published successfully; runtime defects remain until retested.
+
+| ID | Test | Expected result | Status |
+|---|---|---|---|
+| UI-015 | Main workspace display settings | All font, size, colour, weight, case and cue controls accessible; no settings modal | Pending |
+| OUT-018 | Adjust all display controls during playback | Immediate updates without explicit Apply or changing transport state | Pending |
+| OUT-019 | Live appearance with pending editor changes | Unpublished script content remains untouched until Push | Pending |
+| OUT-020 | Embedded and floating visual mirror | Identical line wrapping, cue placement, content and position with proportional letterboxing | Pending |
+| OUT-021 | Preview across presenter open/close, resize and fullscreen | Both previews show the shared surface without clipping or stale content | Pending |
+| SCR-011 | Continuous render at 12, 36, 80 and 160 pt | Smooth subpixel render-transform movement, no per-frame reflow | Pending |
+| SCR-012 | Font size/weight/case change while moving | Approximate reading anchor retained; transport continues | Pending |
+| SCR-013 | Reverse, manual jog, pause and end stop | Correct position and immediate response in new renderer | Pending |
+| SCR-014 | 30-minute large-font and dual-screen test | No visible stutter, memory growth or display lag | Pending |
+| DOC-012 | Save and reopen live settings | All values restored; older projects still load | Pending |
+| UI-016 | Narrow operator panel / 720p / high DPI | Controls scroll into view; preview remains accessible | Pending |
