@@ -81,7 +81,7 @@ User confirmed v0.6 launches and redesigned layout looks better; continuous scro
 User reports v0.7 works much better; individual transport tests remain pending.
 | ID | Test | Expected result | Status |
 |---|---|---|---|
-| OUT-008 | Side reading markers in all three views | Orange arrows point inward at vertical midpoint; no line or overlap | Pending |
+| OUT-008 | Side reading markers in all three views | White triangles point inward at vertical midpoint; no line or overlap (supersedes orange arrows) | Pending |
 | OUT-009 | Slider and numeric size | 12–160 pt; invalid input rejected; sample reflects settings | Pending |
 | OUT-010 | Ten font choices and missing font fallback | Correct font when installed, notice and Arial fallback otherwise | Pending |
 | OUT-011 | Global weight and colour | Regular/bold/as scripted; custom RGB and preserve coloured cues work | Pending |
@@ -89,3 +89,15 @@ User reports v0.7 works much better; individual transport tests remain pending.
 | OUT-013 | Size/font change at mid-script | Reading position approximately retained; preview remains aligned | Pending |
 | DOC-010 | Project roundtrip | Appearance settings retained and older projects use defaults | Pending |
 | UI-013 | Appearance dialog DPI/keyboard | Accessible controls, cancel leaves output unchanged | Pending |
+
+## v0.8.1 reading markers and letter case
+Build #18: Windows compile, publish and EXE check passed for v0.8. Runtime checks pending.
+
+| ID | Test | Expected result | Status |
+|---|---|---|---|
+| OUT-014 | White triangles at 12, 36, 80 and 160 pt | Both markers remain vertically centred, inward facing; dimensions track font size and gutter keeps text clear in all three views | Pending |
+| OUT-015 | Change size using slider and numeric entry | Markers resize on Apply alongside text; fullscreen and floating views match proportional sizing | Pending |
+| OUT-016 | Original case / ALL CAPITAL LETTERS | All presenter and preview text switches; punctuation, colours and paragraph structure retained; original editor text untouched | Pending |
+| OUT-017 | Toggle case mid-script with unpublished changes | Playback pauses on Apply, unpublished content remains unpublished, original case restored when toggled back | Pending |
+| DOC-011 | Save/reopen project with ALL CAPS; open older project | Case preference restored; older projects default to original case; saved RTF remains unmodified | Pending |
+| UI-014 | Settings sample, Reset and Cancel | Sample reflects case selection; reset defaults to original; Cancel leaves output unchanged | Pending |

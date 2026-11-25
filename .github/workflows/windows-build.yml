@@ -39,6 +39,6 @@ jobs:
           if (!(Test-Path publish/LiveCue.exe)) { throw 'LiveCue.exe not found' }
       - uses: actions/upload-artifact@v4
         with:
-          name: LiveCue-v0.6-win-x64
+          name: LiveCue-v0.8.1-win-x64
           path: publish/**
           if-no-files-found: error

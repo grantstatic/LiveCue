@@ -43,7 +43,7 @@ public partial class MainWindow : Window {
  void SyncNow_Click(object s,RoutedEventArgs e)=>SyncLive();
  void ModeChanged(object s,SelectionChangedEventArgs e){output?.SetMode(ModeSelect.SelectedIndex==1);UpdateStatus();}
  void SpeedChanged(object s,RoutedPropertyChangedEventArgs<double> e)=>output?.SetSpeed(e.NewValue);
- void RefreshEmbedded(){var styled=appearance.Render(publishedDocument??Editor.Document,0.45);using var ms=new MemoryStream();new TextRange(styled.ContentStart,styled.ContentEnd).Save(ms,DataFormats.Xaml);ms.Position=0;new TextRange(EmbeddedScript.Document.ContentStart,EmbeddedScript.Document.ContentEnd).Load(ms,DataFormats.Xaml);}
+ void RefreshEmbedded(){var styled=appearance.Render(publishedDocument??Editor.Document,0.45);OutputAppearance.SizeMarkers(CueLeft,CueRight,EmbeddedScript,styled.FontSize);using var ms=new MemoryStream();new TextRange(styled.ContentStart,styled.ContentEnd).Save(ms,DataFormats.Xaml);ms.Position=0;new TextRange(EmbeddedScript.Document.ContentStart,EmbeddedScript.Document.ContentEnd).Load(ms,DataFormats.Xaml);}
  void ApplyAppearance(bool pause=true){var source=publishedDocument??Editor.Document;if(output!=null){if(pause)output.Pause();output.UpdateDocument(appearance.Render(source));}preview?.UpdateDocument(appearance.Render(source,0.65));RefreshEmbedded();UpdateStatus();}
  void Appearance_Click(object s,RoutedEventArgs e){var dialog=new AppearanceWindow(appearance){Owner=this};if(dialog.ShowDialog()==true){appearance=dialog.Result;dirty=true;ApplyAppearance();}}
  void Pause_Click(object s,RoutedEventArgs e){output?.Pause();UpdateStatus();}
