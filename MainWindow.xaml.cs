@@ -11,6 +11,7 @@ using Forms = System.Windows.Forms;
 namespace LiveCue;
 public partial class MainWindow : Window {
  OutputWindow? output; PreviewWindow? preview; bool dirty; bool loading;
+ OutputAppearance appearance=new(); FlowDocument? publishedDocument;
  readonly DispatcherTimer saveTimer=new(){Interval=TimeSpan.FromSeconds(3)};
  readonly DispatcherTimer editTimer=new(){Interval=TimeSpan.FromMilliseconds(500)};
  readonly DispatcherTimer previewTimer=new(){Interval=TimeSpan.FromMilliseconds(50)};
@@ -37,12 +38,14 @@ public partial class MainWindow : Window {
  void Amber_Click(object s,RoutedEventArgs e)=>SetColor(Brushes.Orange);
  void Cyan_Click(object s,RoutedEventArgs e)=>SetColor(Brushes.Cyan);
  void SetColor(Brush color)=>Editor.Selection.ApplyPropertyValue(TextElement.ForegroundProperty,color);
- void Live_Click(object s,RoutedEventArgs e){if(output!=null){output.Activate();return;}output=new OutputWindow(Editor.Document);output.Closed+=(_,_)=>{output=null;preview?.Close();preview=null;UpdateStatus();};output.TransportChanged+=UpdateStatus;output.PreviewKeyDown+=Keys;output.Show();RefreshEmbedded();Activate();output.SetMode(ModeSelect.SelectedIndex==1);output.SetSpeed(SpeedSlider.Value);UpdateStatus();}
- void SyncLive(){if(output==null){RefreshEmbedded();return;}try{output.UpdateDocument(Editor.Document);preview?.UpdateDocument(Editor.Document);RefreshEmbedded();}catch(Exception ex){Status.Text="Live sync error: "+ex.Message;}}
+ void Live_Click(object s,RoutedEventArgs e){if(output!=null){output.Activate();return;}publishedDocument=OutputAppearance.Clone(Editor.Document);output=new OutputWindow(appearance.Render(publishedDocument));output.Closed+=(_,_)=>{output=null;publishedDocument=null;preview?.Close();preview=null;UpdateStatus();};output.TransportChanged+=UpdateStatus;output.PreviewKeyDown+=Keys;output.Show();RefreshEmbedded();Activate();output.SetMode(ModeSelect.SelectedIndex==1);output.SetSpeed(SpeedSlider.Value);UpdateStatus();}
+ void SyncLive(){if(output==null){RefreshEmbedded();return;}try{publishedDocument=OutputAppearance.Clone(Editor.Document);ApplyAppearance(false);}catch(Exception ex){Status.Text="Live sync error: "+ex.Message;}}
  void SyncNow_Click(object s,RoutedEventArgs e)=>SyncLive();
  void ModeChanged(object s,SelectionChangedEventArgs e){output?.SetMode(ModeSelect.SelectedIndex==1);UpdateStatus();}
  void SpeedChanged(object s,RoutedPropertyChangedEventArgs<double> e)=>output?.SetSpeed(e.NewValue);
- void RefreshEmbedded(){using var ms=new MemoryStream();new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Save(ms,DataFormats.Xaml);ms.Position=0;new TextRange(EmbeddedScript.Document.ContentStart,EmbeddedScript.Document.ContentEnd).Load(ms,DataFormats.Xaml);}
+ void RefreshEmbedded(){var styled=appearance.Render(publishedDocument??Editor.Document,0.45);using var ms=new MemoryStream();new TextRange(styled.ContentStart,styled.ContentEnd).Save(ms,DataFormats.Xaml);ms.Position=0;new TextRange(EmbeddedScript.Document.ContentStart,EmbeddedScript.Document.ContentEnd).Load(ms,DataFormats.Xaml);}
+ void ApplyAppearance(bool pause=true){var source=publishedDocument??Editor.Document;if(output!=null){if(pause)output.Pause();output.UpdateDocument(appearance.Render(source));}preview?.UpdateDocument(appearance.Render(source,0.65));RefreshEmbedded();UpdateStatus();}
+ void Appearance_Click(object s,RoutedEventArgs e){var dialog=new AppearanceWindow(appearance){Owner=this};if(dialog.ShowDialog()==true){appearance=dialog.Result;dirty=true;ApplyAppearance();}}
  void Pause_Click(object s,RoutedEventArgs e){output?.Pause();UpdateStatus();}
  void Play_Click(object s,RoutedEventArgs e){if(output==null)Live_Click(s,e);output?.TogglePlay();UpdateStatus();}
  void Reverse_Click(object s,RoutedEventArgs e)=>output?.Reverse();
@@ -50,7 +53,7 @@ public partial class MainWindow : Window {
  void JogForward_Click(object s,RoutedEventArgs e)=>output?.Jog(1);
  void SendDisplay_Click(object s,RoutedEventArgs e){if(output==null)Live_Click(s,e);var screens=Forms.Screen.AllScreens;if(output!=null&&DisplaySelect.SelectedIndex>=0&&DisplaySelect.SelectedIndex<screens.Length)output.MoveToScreen(screens[DisplaySelect.SelectedIndex]);Activate();}
  void Floating_Click(object s,RoutedEventArgs e){if(output==null)Live_Click(s,e);output?.Floating();}
- void Preview_Click(object s,RoutedEventArgs e){if(output==null)Live_Click(s,e);if(output==null)return;if(preview==null){preview=new PreviewWindow(Editor.Document);preview.Owner=this;preview.Closed+=(_,_)=>preview=null;preview.PreviewKeyDown+=Keys;preview.Show();}else preview.Activate();}
+ void Preview_Click(object s,RoutedEventArgs e){if(output==null)Live_Click(s,e);if(output==null)return;if(preview==null){preview=new PreviewWindow(appearance.Render(publishedDocument??Editor.Document,0.65));preview.Owner=this;preview.Closed+=(_,_)=>preview=null;preview.PreviewKeyDown+=Keys;preview.Show();}else preview.Activate();}
  void UpdateStatus(){if(Status!=null)Status.Text=output==null?"Output closed":(output.Manual?"Manual jog":"Continuous")+" / "+(output.Playing?"Running":"Paused");}
  void PreviewFocus_Click(object s,MouseButtonEventArgs e){if(s is UIElement el)el.Focus();}
  void Keys(object s,KeyEventArgs e){
@@ -74,7 +77,7 @@ public partial class MainWindow : Window {
  void Practice(){
   loading=true;try{Editor.Document.Blocks.Clear();foreach(var line in PracticeScript.Text.Split('\n')){if(string.IsNullOrWhiteSpace(line))continue;var run=new Run(line);if(line.StartsWith("[")){run.Foreground=Brushes.Cyan;run.FontWeight=FontWeights.Bold;}Editor.Document.Blocks.Add(new Paragraph(run));}dirty=false;}finally{loading=false;}
  }
- sealed class ProjectData{public string Rtf{get;set;}="";public double Speed{get;set;}=55;public bool Manual{get;set;}public int Display{get;set;}public bool AutoPush{get;set;}}
- void SaveProject_Click(object s,RoutedEventArgs e){var d=new SaveFileDialog{Filter="LiveCue project|*.livecue",DefaultExt=".livecue"};if(d.ShowDialog()!=true)return;try{using var ms=new MemoryStream();new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Save(ms,DataFormats.Rtf);var p=new ProjectData{Rtf=Convert.ToBase64String(ms.ToArray()),Speed=SpeedSlider.Value,Manual=ModeSelect.SelectedIndex==1,Display=DisplaySelect.SelectedIndex,AutoPush=LiveSyncBox.IsChecked==true};File.WriteAllText(d.FileName,System.Text.Json.JsonSerializer.Serialize(p));dirty=false;if(File.Exists(recovery))File.Delete(recovery);}catch(Exception ex){MessageBox.Show(ex.Message);}}
- bool LoadProject(){var d=new OpenFileDialog{Filter="LiveCue project|*.livecue"};if(d.ShowDialog()!=true)return false;try{var p=System.Text.Json.JsonSerializer.Deserialize<ProjectData>(File.ReadAllText(d.FileName))??throw new InvalidDataException("Invalid project");using var ms=new MemoryStream(Convert.FromBase64String(p.Rtf));loading=true;new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Load(ms,DataFormats.Rtf);SpeedSlider.Value=Math.Clamp(p.Speed,0,300);ModeSelect.SelectedIndex=p.Manual?1:0;if(p.Display>=0&&p.Display<DisplaySelect.Items.Count)DisplaySelect.SelectedIndex=p.Display;LiveSyncBox.IsChecked=p.AutoPush;dirty=false;return true;}catch(Exception ex){MessageBox.Show(ex.Message);return false;}finally{loading=false;}}
+ sealed class ProjectData{public string Rtf{get;set;}="";public double Speed{get;set;}=55;public bool Manual{get;set;}public int Display{get;set;}public bool AutoPush{get;set;}public OutputAppearance? Appearance{get;set;}}
+ void SaveProject_Click(object s,RoutedEventArgs e){var d=new SaveFileDialog{Filter="LiveCue project|*.livecue",DefaultExt=".livecue"};if(d.ShowDialog()!=true)return;try{using var ms=new MemoryStream();new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Save(ms,DataFormats.Rtf);var p=new ProjectData{Rtf=Convert.ToBase64String(ms.ToArray()),Speed=SpeedSlider.Value,Manual=ModeSelect.SelectedIndex==1,Display=DisplaySelect.SelectedIndex,AutoPush=LiveSyncBox.IsChecked==true,Appearance=appearance};File.WriteAllText(d.FileName,System.Text.Json.JsonSerializer.Serialize(p));dirty=false;if(File.Exists(recovery))File.Delete(recovery);}catch(Exception ex){MessageBox.Show(ex.Message);}}
+ bool LoadProject(){var d=new OpenFileDialog{Filter="LiveCue project|*.livecue"};if(d.ShowDialog()!=true)return false;try{var p=System.Text.Json.JsonSerializer.Deserialize<ProjectData>(File.ReadAllText(d.FileName))??throw new InvalidDataException("Invalid project");using var ms=new MemoryStream(Convert.FromBase64String(p.Rtf));loading=true;new TextRange(Editor.Document.ContentStart,Editor.Document.ContentEnd).Load(ms,DataFormats.Rtf);SpeedSlider.Value=Math.Clamp(p.Speed,0,300);ModeSelect.SelectedIndex=p.Manual?1:0;if(p.Display>=0&&p.Display<DisplaySelect.Items.Count)DisplaySelect.SelectedIndex=p.Display;LiveSyncBox.IsChecked=p.AutoPush;appearance=p.Appearance??new OutputAppearance();dirty=false;return true;}catch(Exception ex){MessageBox.Show(ex.Message);return false;}finally{loading=false;}}
 }

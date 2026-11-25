@@ -76,3 +76,16 @@ User confirmed v0.6 launches and redesigned layout looks better; continuous scro
 | UI-010 | Startup keyboard navigation | Tab focus visible; Enter activates correct option | Pending |
 | UI-011 | Startup on small screens and high DPI | All options reachable by scrolling | Pending |
 | UI-012 | Recovery card | Only visible when recovery exists | Pending |
+
+## v0.8 presenter appearance
+User reports v0.7 works much better; individual transport tests remain pending.
+| ID | Test | Expected result | Status |
+|---|---|---|---|
+| OUT-008 | Side reading markers in all three views | Orange arrows point inward at vertical midpoint; no line or overlap | Pending |
+| OUT-009 | Slider and numeric size | 12–160 pt; invalid input rejected; sample reflects settings | Pending |
+| OUT-010 | Ten font choices and missing font fallback | Correct font when installed, notice and Arial fallback otherwise | Pending |
+| OUT-011 | Global weight and colour | Regular/bold/as scripted; custom RGB and preserve coloured cues work | Pending |
+| OUT-012 | Apply with unpublished edits | Published script unchanged; appearance only, playback pauses | Pending |
+| OUT-013 | Size/font change at mid-script | Reading position approximately retained; preview remains aligned | Pending |
+| DOC-010 | Project roundtrip | Appearance settings retained and older projects use defaults | Pending |
+| UI-013 | Appearance dialog DPI/keyboard | Accessible controls, cancel leaves output unchanged | Pending |
